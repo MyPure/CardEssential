@@ -13,6 +13,7 @@ A mod for Card Survival Tropical Island. You can view and modify game stats by t
 
 BepInEx 5
 https://github.com/BepInEx/BepInEx
+
 UniverseLib 1.5.1
 https://github.com/sinai-dev/UniverseLib
 

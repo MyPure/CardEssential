@@ -28,9 +28,15 @@ https://github.com/sinai-dev/UniverseLib
 - 详细说明
 
 工具列出了游戏内数值构成，分为Value和Rate两种类型。
+
 Value即当前状态的数值。
+
 Rate指的是当前状态在下一个Tick会增减的数值。在这个游戏中，一个Tick对应游戏中15分钟。
+
 每种类型又有两种数据，Base和Modifiers。
+
 Base指的是当前状态的基础数值。
+
 Modifiers指的是当前数值的影响量，这个影响会附加在Base上。
+
 （还有一个AtBase，目前不知道干啥用的，如果非0也会显示出来）

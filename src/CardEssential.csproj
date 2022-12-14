@@ -35,6 +35,5 @@
   </ItemGroup>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy.bat" />
   </Target>
 </Project>

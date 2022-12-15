@@ -14,16 +14,17 @@ public class StatPanel : PanelBase
     public StatPanel(UIBase owner) : base(owner)
     {
     }
+
+    private static Vector2 s_Position = new Vector2(200, -200);
     
     public override string Name => "CardEssential.Monitor.Stats (Ctrl + F)";
     public override int MinWidth => 900;
     public override int MinHeight => 600;
     public override Vector2 DefaultAnchorMin => new(0, 1);
     public override Vector2 DefaultAnchorMax => new(0, 1);
-    public override Vector2 DefaultPosition => new Vector2(0f, 0f);
 
     public override bool CanDragAndResize => true;
-
+    
     private List<StatPack> m_StatPacks = new();
 
     private int m_CurrentTab = 0;
@@ -55,16 +56,10 @@ public class StatPanel : PanelBase
             List<StatPack> filteredData;
             if (statTabModel.Classification != "Other")
             {
-                var firstFilteredData = StatFilter.Filter(statTabModel.Classification, statPacks);
-
-                filteredData = new List<StatPack>();
-                firstFilteredData.ForEach(pack =>
+                filteredData = StatMonitorManager.StatFilter.Filter(statTabModel.Classification, statPacks);
+                filteredData.ForEach(pack =>
                 {
-                    if (!m_FilteredData.Contains(pack.DefaultName))
-                    {
-                        m_FilteredData.Add(pack.DefaultName);
-                        filteredData.Add(pack);
-                    }
+                    m_FilteredData.Add(pack.DefaultName);
                 });
             }
             else
@@ -87,13 +82,13 @@ public class StatPanel : PanelBase
             model.Refresh();
         }
     }
-
+    
     public override void SetDefaultSizeAndPosition()
     {
         base.SetDefaultSizeAndPosition();
 
         Rect.pivot = new Vector2(0, 1);
-        Rect.anchoredPosition = new Vector2(200, -200);
+        Rect.anchoredPosition = s_Position;
     }
     
     protected override void OnClosePanelClicked()
@@ -107,14 +102,14 @@ public class StatPanel : PanelBase
         UIFactory.SetLayoutGroup<HorizontalLayoutGroup>(buttonHeader, true, false, true, true, 2, 2, 2, 2, 2);
 
         int index = 0;
-        foreach (var classification in StatFilter.AllClassifications)
+        foreach (var classification in StatMonitorManager.StatFilter.AllClassifications.Concat(new[] { "Other" }))
         {
             var tabButton = UIFactory.CreateButton(buttonHeader, classification, classification);
             UIFactory.SetLayoutElement(tabButton.GameObject, minWidth: 40, minHeight: 25);
             var indexCapture = index;
             tabButton.OnClick = () => SetTab(indexCapture);
             m_TabButtons.Add(tabButton);
-            
+
             var model = new StatTabModel(classification);
             model.ConstructUI(ContentRoot);
             model.SetActive(false);
@@ -122,8 +117,15 @@ public class StatPanel : PanelBase
 
             index++;
         }
-        
+
         SetTab(0);
+    }
+
+    public override void Destroy()
+    {
+        m_StatTabModels.ForEach(model => model.Destroy());
+        s_Position = Rect.anchoredPosition;
+        base.Destroy();
     }
 
     private void SetTab(int index)

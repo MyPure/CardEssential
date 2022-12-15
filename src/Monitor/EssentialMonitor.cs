@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using CardEssential.Monitor.Config;
 using CardEssential.Monitor.Stat;
 using UnityEngine;
 using UniverseLib.Input;
@@ -14,6 +15,7 @@ public class EssentialMonitor : BaseUnityPlugin
     {
         Instance = this;
         StatMonitorManager.Init();
+        LitJsonExtension.RegisterUnityObject();
     }
 
     private void Update()
@@ -27,5 +29,15 @@ public class EssentialMonitor : BaseUnityPlugin
     public void LogInfo(string msg)
     {
         Logger.LogInfo(msg);
+    }
+
+    public void LogWarning(string msg)
+    {
+        Logger.LogWarning(msg);
+    }
+    
+    public void LogError(string msg)
+    {
+        Logger.LogError(msg);
     }
 }

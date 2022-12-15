@@ -50,11 +50,17 @@ public class StatTabModel : UIModel, ICellPoolDataSource<StatCell>
         }
         cell.SetStat(m_StatPacks[index]);
     }
-    
+
     public override void ConstructUI(GameObject parent)
     {
         m_ScrollPool = UIFactory.CreateScrollPool<StatCell>(parent, "StatScrollPool", out GameObject scrollRoot, out GameObject scrollContent, Color.gray);
         UIFactory.SetLayoutElement(scrollRoot, flexibleWidth: 9999, flexibleHeight: 9999);
         m_ScrollPool.Initialize(this);
+    }
+
+    public override void Destroy()
+    {
+        m_ScrollPool.Destroy();
+        base.Destroy();
     }
 }

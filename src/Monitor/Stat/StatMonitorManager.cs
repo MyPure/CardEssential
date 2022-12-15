@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using System.Reflection;
 using CardEssential.Injector;
 using CardEssential.Injector.Stat;
+using CardEssential.Monitor.Config;
+using CardEssential.Monitor.FileUtility;
+using CardEssential.Monitor.Stat.Data;
 using CardEssential.Monitor.Utils;
 using UnityEngine;
+using UniverseLib.Input;
 using UniverseLib.UI;
 
 namespace CardEssential.Monitor.Stat;
@@ -21,6 +25,9 @@ public static class StatMonitorManager
             UiBase.Enabled = value;
         }
     }
+    
+    public static StatFilter StatFilter { get; private set; }
+
     public static UIBase UiBase { get; set; }
     private static StatPanel StatPanel { get; set; }
 
@@ -47,6 +54,9 @@ public static class StatMonitorManager
     private static void OnInitialized() 
     {
         UiBase = UniversalUI.RegisterUI(GUID, UiUpdate);
+        
+        StatFilter = StatFilter.Create(DataProxy<StatTabDataFile>.Read());
+        
         var statPanel = new StatPanel(UiBase);
         StatPanel = statPanel;
 
@@ -54,6 +64,21 @@ public static class StatMonitorManager
         EssentialInjector.Instance.StatInjector.OnStatCollected += OnStatCollectedHandler;
         //EssentialInjector.Instance.StatInjector.OnStatListTabCollected += OnStatListTabCollectedHandler;
         EssentialInjector.Instance.StatInjector.OnQuitGame += OnQuitGameHandler;
+    }
+
+    private static void Rebuild()
+    {
+        var statTabDataFile = DataProxy<StatTabDataFile>.Read();
+        StatFilter = StatFilter.Create(statTabDataFile);
+        
+        StatPanel.Destroy();
+        var statPanel = new StatPanel(UiBase);
+        StatPanel = statPanel;
+
+        if (StatPacks != null)
+        {
+            StatPanel.SetData(StatPacks);
+        }
     }
 
     private static void OnStatCollectedHandler(List<StatPack> statPacks)
@@ -118,6 +143,9 @@ public static class StatMonitorManager
 
     private static void UiUpdate()
     {
-        
+        if (InputManager.GetKey(KeyCode.LeftControl) && InputManager.GetKeyDown(KeyCode.R))
+        {
+            Rebuild();
+        }
     }
 }

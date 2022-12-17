@@ -1,16 +1,17 @@
 # CardEssential
-A mod for Card Survival Tropical Island. You can view and modify game stats by this mod.
+卡牌本质 - CardEssential by MyPure
 
-卡牌本质 - CardEssential v0.0.1 by MyPure
+简体中文 English
 
 - 简要
 
 卡牌本质是一个基础工具类Mod，提供调整游戏内容的基础功能。目前仅有查看游戏数值（Stat）的功能。
+
 你可以通过本Mod查看游戏内查看与修改所有内在数值，例如人物状态、种群密度、植物数量等。后面会持续更新与添加功能！
+
 注：Mod会影响游戏平衡，请慎重使用！
 
 - 依赖
-
 BepInEx 5
 https://github.com/BepInEx/BepInEx
 

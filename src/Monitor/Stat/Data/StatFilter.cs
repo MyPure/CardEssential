@@ -66,7 +66,7 @@ public class StatFilter
             {
                 "Climbing", "Swimming", "Herbology", "Cooking", "Crafting", "Tailoring", "Woodworking", "Knapping",
                 "Metalworking", "Trapping", "Fishing", "Spear Fishing", "Spear Fighting", "Archery", "Rock Throwing",
-                "Sling", "Percussion", "Stealth", "Insight",
+                "Sling", "Percussion", "Stealth", "Insight", "Handguns"
             }
         },
         {

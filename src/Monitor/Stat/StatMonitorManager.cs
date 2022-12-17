@@ -32,8 +32,8 @@ public static class StatMonitorManager
     public static UIBase UiBase { get; set; }
     public static StatPanel StatPanel { get; set; }
 
-    public static Dictionary<string, float> LockedStatValue { get; set; } = new();
-    public static Dictionary<string, float> LockedStatRate { get; set; } = new();
+    public static Dictionary<string, (float realValue, float baseValue)> LockedStatValue { get; set; } = new();
+    public static Dictionary<string, (float realRate, float baseRate)> LockedStatRate { get; set; } = new();
 
     private static List<StatPack> StatPacks { get; set; }
     

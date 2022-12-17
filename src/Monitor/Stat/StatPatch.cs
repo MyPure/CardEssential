@@ -9,7 +9,9 @@ public static class StatPatch
     {
         if (StatMonitorManager.LockedStatValue.ContainsKey(__instance.StatModel.GameName.DefaultText))
         {
-            __result = StatMonitorManager.LockedStatValue[__instance.StatModel.GameName.DefaultText];
+            __result = StatMonitorManager.LockedStatValue[__instance.StatModel.GameName.DefaultText].realValue;
+            __instance.CurrentBaseValue =
+                StatMonitorManager.LockedStatValue[__instance.StatModel.GameName.DefaultText].baseValue;
         }
     }
     
@@ -18,7 +20,8 @@ public static class StatPatch
     {
         if (StatMonitorManager.LockedStatRate.ContainsKey(__instance.StatModel.GameName.DefaultText))
         {
-            __result = StatMonitorManager.LockedStatRate[__instance.StatModel.GameName.DefaultText];
+            __result = StatMonitorManager.LockedStatRate[__instance.StatModel.GameName.DefaultText].realRate;
+            __instance.CurrentBaseRate = StatMonitorManager.LockedStatRate[__instance.StatModel.GameName.DefaultText].baseRate;
         }
     }
     

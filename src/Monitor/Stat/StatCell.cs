@@ -164,13 +164,13 @@ public class StatCell : ICell
     {
         if (locked)
         {
-            StatMonitorManager.LockedStatValue[m_StatPack.DefaultName] = m_StatPack.Value.CurrentValue;
+            StatMonitorManager.LockedStatValue[m_StatPack.DefaultName] = (m_StatPack.Value.CurrentValue, m_StatPack.Value.CurrentBaseValue);
         }
         else
         {
             if (StatMonitorManager.LockedStatValue.ContainsKey(m_StatPack.DefaultName))
             {
-                var prevValue = StatMonitorManager.LockedStatValue[m_StatPack.DefaultName];
+                var prevValue = StatMonitorManager.LockedStatValue[m_StatPack.DefaultName].realValue;
                 StatMonitorManager.LockedStatValue.Remove(m_StatPack.DefaultName);
                 StatMonitorManager.UpdateStatStatuses(m_StatPack, prevValue);
             }
@@ -183,15 +183,15 @@ public class StatCell : ICell
     {
         if (locked)
         {
-            StatMonitorManager.LockedStatRate[m_StatPack.DefaultName] = m_StatPack.Rate.CurrentRatePerTick;
+            StatMonitorManager.LockedStatRate[m_StatPack.DefaultName] = (m_StatPack.Rate.CurrentRatePerTick, m_StatPack.Rate.CurrentBaseRate);
         }
         else
         {
             if (StatMonitorManager.IsLockRate(m_StatPack))
             {
-                var prevValue = StatMonitorManager.LockedStatRate[m_StatPack.DefaultName];
+                var prevValue = StatMonitorManager.LockedStatRate[m_StatPack.DefaultName].realRate;
                 StatMonitorManager.LockedStatRate.Remove(m_StatPack.DefaultName);
-                StatMonitorManager.UpdateStatStatuses(m_StatPack,prevValue);
+                StatMonitorManager.UpdateStatStatuses(m_StatPack, prevValue);
             }
         }
             

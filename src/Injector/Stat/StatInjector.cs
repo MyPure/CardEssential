@@ -71,10 +71,4 @@ public class StatInjector
             }
         }
     }
-
-    [HarmonyPostfix, HarmonyPatch(typeof(GameManager), "ActionRoutine")]
-    private static void ActionRoutinePatch(CardAction _Action)
-    {
-        EssentialInjector.Instance.LogInfo("Action " + _Action.ActionName + " " + _Action.ActionDescription);
-    }
 }

@@ -1,7 +1,7 @@
 # CardEssential
 卡牌本质 - CardEssential by MyPure
 
-**[简体中文]https://github.com/MyPure/CardEssential/blob/main/README.md** **[English](https://github.com/MyPure/CardEssential/blob/main/README%20-%20EN.md)**
+**[简体中文](https://github.com/MyPure/CardEssential/blob/main/README.md)** **[English](https://github.com/MyPure/CardEssential/blob/main/README%20-%20EN.md)**
 
 - 简要
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using CardEssential.Injector;
 using CardEssential.Injector.Stat;
-using CardEssential.Monitor.Config;
 using CardEssential.Monitor.FileUtility;
 using CardEssential.Monitor.Stat.Data;
 using CardEssential.Monitor.Utils;
@@ -27,9 +26,14 @@ public static class StatMonitorManager
     }
     
     public static StatFilter StatFilter { get; private set; }
+    
+    public static StatTabDataFile SavedData { get; private set; }
 
     public static UIBase UiBase { get; set; }
-    private static StatPanel StatPanel { get; set; }
+    public static StatPanel StatPanel { get; set; }
+
+    public static Dictionary<string, float> LockedStatValue { get; set; } = new();
+    public static Dictionary<string, float> LockedStatRate { get; set; } = new();
 
     private static List<StatPack> StatPacks { get; set; }
     
@@ -43,6 +47,12 @@ public static class StatMonitorManager
         };
 
         UniverseLib.Universe.Init(startupDelay, OnInitialized, LogHandler, config);
+        
+    }
+
+    public static void SaveData()
+    {
+        DataProxy<StatTabDataFile>.Save(SavedData);
     }
 
     public static void ToggleDisplay()
@@ -54,8 +64,9 @@ public static class StatMonitorManager
     private static void OnInitialized() 
     {
         UiBase = UniversalUI.RegisterUI(GUID, UiUpdate);
-        
-        StatFilter = StatFilter.Create(DataProxy<StatTabDataFile>.Read());
+
+        SavedData = DataProxy<StatTabDataFile>.Read();
+        StatFilter = StatFilter.Create(SavedData);
         
         var statPanel = new StatPanel(UiBase);
         StatPanel = statPanel;
@@ -66,10 +77,10 @@ public static class StatMonitorManager
         EssentialInjector.Instance.StatInjector.OnQuitGame += OnQuitGameHandler;
     }
 
-    private static void Rebuild()
+    private static void Reload()
     {
-        var statTabDataFile = DataProxy<StatTabDataFile>.Read();
-        StatFilter = StatFilter.Create(statTabDataFile);
+        SavedData = DataProxy<StatTabDataFile>.Read();
+        StatFilter = StatFilter.Create(SavedData);
         
         StatPanel.Destroy();
         var statPanel = new StatPanel(UiBase);
@@ -79,6 +90,16 @@ public static class StatMonitorManager
         {
             StatPanel.SetData(StatPacks);
         }
+    }
+
+    public static bool IsLockValue(StatPack statPack)
+    {
+        return LockedStatValue.ContainsKey(statPack.DefaultName);
+    }
+    
+    public static bool IsLockRate(StatPack statPack)
+    {
+        return LockedStatRate.ContainsKey(statPack.DefaultName);
     }
 
     private static void OnStatCollectedHandler(List<StatPack> statPacks)
@@ -136,6 +157,16 @@ public static class StatMonitorManager
         StatPanel.Refresh();
     }
 
+    public static void UpdateStatStatuses(StatPack statPack, float prevValue)
+    {
+        var routine = (IEnumerator)ReflectionUtils.ExecuteMethod<GameManager>("UpdateStatStatuses",
+            BindingFlags.NonPublic | BindingFlags.Instance, EssentialInjector.GM,
+            new object[] { statPack.Stat, prevValue, null });
+        EssentialInjector.GM.StartCoroutineEx(routine, out _);
+
+        StatPanel.Refresh();
+    }
+
     private static void LogHandler(string message, LogType type)
     {
         EssentialMonitor.Instance.LogInfo(message);
@@ -145,7 +176,7 @@ public static class StatMonitorManager
     {
         if (InputManager.GetKey(KeyCode.LeftControl) && InputManager.GetKeyDown(KeyCode.R))
         {
-            Rebuild();
+            Reload();
         }
     }
 }

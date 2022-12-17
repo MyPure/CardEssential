@@ -32,6 +32,7 @@ namespace LitJson
         private Type element_type;
         private bool is_array;
         private bool is_list;
+        private bool is_set;
 
 
         public Type ElementType {
@@ -53,6 +54,11 @@ namespace LitJson
         public bool IsList {
             get { return is_list; }
             set { is_list = value; }
+        }
+        
+        public bool IsSet {
+            get { return is_set; }
+            set { is_set = value; }
         }
     }
 
@@ -172,17 +178,30 @@ namespace LitJson
             if (type.GetInterface ("System.Collections.IList") != null)
                 data.IsList = true;
 
-            foreach (PropertyInfo p_info in type.GetProperties ()) {
-                if (p_info.Name != "Item")
-                    continue;
+            if (data.IsArray || data.IsList)
+            {
+                foreach (PropertyInfo p_info in type.GetProperties ()) {
+                    if (p_info.Name != "Item")
+                        continue;
 
-                ParameterInfo[] parameters = p_info.GetIndexParameters ();
+                    ParameterInfo[] parameters = p_info.GetIndexParameters ();
 
-                if (parameters.Length != 1)
-                    continue;
+                    if (parameters.Length != 1)
+                        continue;
 
-                if (parameters[0].ParameterType == typeof (int))
-                    data.ElementType = p_info.PropertyType;
+                    if (parameters[0].ParameterType == typeof (int))
+                        data.ElementType = p_info.PropertyType;
+                }
+            }
+            else
+            {
+                var iSet = type.GetGenericInterface(typeof(ISet<>));
+                if (iSet != null)
+                {
+                    data.IsSet = true;
+                    var targetType = iSet.GetGenericArguments()[0];
+                    data.ElementType = targetType;
+                }
             }
 
             lock (array_metadata_lock) {
@@ -389,41 +408,68 @@ namespace LitJson
                 AddArrayMetadata (inst_type);
                 ArrayMetadata t_data = array_metadata[inst_type];
 
-                if (! t_data.IsArray && ! t_data.IsList)
+                if (! t_data.IsArray && ! t_data.IsList && !t_data.IsSet)
                     throw new JsonException (String.Format (
-                            "Type {0} can't act as an array",
+                            "Type {0} can't act as an array or set",
                             inst_type));
-
-                IList list;
+                
                 Type elem_type;
+                if (t_data.IsArray || t_data.IsList)
+                {
+                    IList list;
+                    
+                    if (! t_data.IsArray) {
+                        list = (IList) Activator.CreateInstance (inst_type);
+                        elem_type = t_data.ElementType;
+                    } else{
+                        list = new ArrayList ();
+                        elem_type = inst_type.GetElementType ();
+                    }
+                    
+                    list.Clear();
 
-                if (! t_data.IsArray) {
-                    list = (IList) Activator.CreateInstance (inst_type);
+                    while (true) {
+                        object item = ReadValue (elem_type, reader);
+                        if (item == null && reader.Token == JsonToken.ArrayEnd)
+                            break;
+
+                        list.Add (item);
+                    }
+
+                    if (t_data.IsArray) {
+                        int n = list.Count;
+                        instance = Array.CreateInstance (elem_type, n);
+
+                        for (int i = 0; i < n; i++)
+                            ((Array) instance).SetValue (list[i], i);
+                    } else
+                        instance = list;
+                }
+                else
+                {
                     elem_type = t_data.ElementType;
-                } else {
-                    list = new ArrayList ();
-                    elem_type = inst_type.GetElementType ();
+                    Type set_type = typeof(ISet<>).MakeGenericType(elem_type);
+                    object set = Activator.CreateInstance(inst_type);
+
+                    MethodInfo addMethod = set_type.GetMethod("Add");
+                    if (addMethod != null)
+                    {
+                        while (true) {
+                            object item = ReadValue (elem_type, reader);
+                            if (item == null && reader.Token == JsonToken.ArrayEnd)
+                                break;
+
+                            addMethod.Invoke(set, new []{item});
+                        }
+
+                        instance = set;
+                    }
+                    else
+                    {
+                        throw new JsonException (String.Format (
+                            "Type {0} can't act as an set", inst_type));
+                    }
                 }
-
-                list.Clear();
-
-                while (true) {
-                    object item = ReadValue (elem_type, reader);
-                    if (item == null && reader.Token == JsonToken.ArrayEnd)
-                        break;
-
-                    list.Add (item);
-                }
-
-                if (t_data.IsArray) {
-                    int n = list.Count;
-                    instance = Array.CreateInstance (elem_type, n);
-
-                    for (int i = 0; i < n; i++)
-                        ((Array) instance).SetValue (list[i], i);
-                } else
-                    instance = list;
-
             } else if (reader.Token == JsonToken.ObjectStart) {
                 AddObjectMetadata (value_type);
                 ObjectMetadata t_data = object_metadata[value_type];
@@ -787,7 +833,17 @@ namespace LitJson
                 foreach (object elem in (IList) obj)
                     WriteValue (elem, writer, writer_is_private, depth + 1);
                 writer.WriteArrayEnd ();
+                
+                return;
+            }
 
+            if (obj.GetType().HasGenericInterface(typeof(ISet<>)))
+            {
+                writer.WriteArrayStart ();
+                foreach (object elem in (IEnumerable) obj)
+                    WriteValue (elem, writer, writer_is_private, depth + 1);
+                writer.WriteArrayEnd ();
+                
                 return;
             }
 
@@ -885,7 +941,6 @@ namespace LitJson
             writer.WriteObjectEnd ();
         }
         #endregion
-
 
         public static string ToJson (object obj)
         {

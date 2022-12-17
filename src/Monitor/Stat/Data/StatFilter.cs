@@ -123,6 +123,6 @@ public class StatFilter
             return statPacks.Where(pack => NameFilter[name].Contains(pack.DefaultName)).ToList();
         }
 
-        return null;
+        return new List<StatPack>();
     }
 }

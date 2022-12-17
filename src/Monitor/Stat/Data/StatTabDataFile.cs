@@ -9,14 +9,11 @@ namespace CardEssential.Monitor.Stat.Data;
 public class StatTabDataFile : BaseDataFile
 {
     public List<StatTabContain> tabContains;
+    public HashSet<string> favoriteStats;
 
-    public override string DataName
-    {
-        get
-        {
-            return "StatTabData";
-        }
-    }
+    public override string DataName => "StatData";
+
+    public override string DataFolderPath => "Monitor";
 
     public override bool Valid
     {
@@ -32,6 +29,7 @@ public class StatTabDataFile : BaseDataFile
         {
             var data = new StatTabDataFile();
             data.tabContains = new List<StatTabContain>();
+            data.favoriteStats = new HashSet<string>();
 
             foreach (var pair in StatFilter.NameFilterDefault)
             {

@@ -11,6 +11,7 @@ public class StatCellDetailContent : UIModel
     public override GameObject UIRoot => m_UiRoot;
     private Action<string> m_ApplyButtonClickedHandler;
     private Action m_ResetButtonClickedHandler;
+    private Action<bool> m_LockButtonClickedHandler;
     
     private GameObject m_UiRoot;
     private Text m_TopLabel;
@@ -20,6 +21,9 @@ public class StatCellDetailContent : UIModel
     private InputFieldRef m_BaseInputField;
     private ButtonRef m_BaseApply;
     private ButtonRef m_BaseReset;
+    private GameObject m_BaseLock;
+    private Toggle m_LockToggle;
+    private Text m_LockToggleText;
     
     private GameObject m_AtBaseContent;
     private Text m_AtBase;
@@ -28,10 +32,11 @@ public class StatCellDetailContent : UIModel
     private Text m_ModifiersLabel;
     private Text m_ModifiersText;
 
-    public StatCellDetailContent(Action<string> applyButtonClickedHandler, Action resetButtonClickedHandler)
+    public StatCellDetailContent(Action<string> applyButtonClickedHandler, Action resetButtonClickedHandler, Action<bool> lockButtonClickedHandler)
     {
         m_ApplyButtonClickedHandler = applyButtonClickedHandler;
         m_ResetButtonClickedHandler = resetButtonClickedHandler;
+        m_LockButtonClickedHandler = lockButtonClickedHandler;
     }
     
     public override void ConstructUI(GameObject parent)
@@ -39,8 +44,17 @@ public class StatCellDetailContent : UIModel
         m_UiRoot = UIFactory.CreateUIObject("StatCellContent", parent);
         UIFactory.SetLayoutGroup<VerticalLayoutGroup>(m_UiRoot, false, false, true, true, 0, 0, 0, 0, 0);
         
-        m_TopLabel = UIFactory.CreateLabel(m_UiRoot, "TopLabel", "", TextAnchor.MiddleLeft, Color.white, true, 15);
+        var header = UIFactory.CreateUIObject("Header", m_UiRoot);
+        UIFactory.SetLayoutGroup<HorizontalLayoutGroup>(header, false, false, true, true, 5, 0, 0, 0, 0);
+        
+        m_TopLabel = UIFactory.CreateLabel(header, "TopLabel", "", TextAnchor.MiddleLeft, Color.white, true, 15);
         UIFactory.SetLayoutElement(m_TopLabel.gameObject, minHeight: 25, minWidth: 30);
+        
+        m_BaseLock = UIFactory.CreateToggle(header,"BaseLock", out m_LockToggle, out m_LockToggleText);
+        UIFactory.SetLayoutElement(m_BaseLock, minHeight: 25, minWidth: 35);
+        m_LockToggleText.text = "Lock";
+        m_LockToggle.isOn = false;
+        m_LockToggle.onValueChanged.AddListener(m_LockButtonClickedHandler);
         
         //Base Content
         m_BaseContent = UIFactory.CreateUIObject("BaseContent", m_UiRoot);
@@ -60,7 +74,7 @@ public class StatCellDetailContent : UIModel
         m_BaseReset = UIFactory.CreateButton(m_BaseContent, "BaseReset", "Reset");
         UIFactory.SetLayoutElement(m_BaseReset.GameObject, minHeight: 25, minWidth: 40);
         m_BaseReset.OnClick = () => m_ResetButtonClickedHandler();
-        
+
         //AtBase Content
         m_AtBaseContent = UIFactory.CreateUIObject("AtBaseContent", m_UiRoot);
         UIFactory.SetLayoutGroup<HorizontalLayoutGroup>(m_AtBaseContent, false, false, true, true, 5, 0, 0, 20, 0);
@@ -80,7 +94,7 @@ public class StatCellDetailContent : UIModel
     }
 
     public void Refresh(string topLabel, string baseText, bool notAtBase, string atBaseText, string modifiersLabel,
-        string modifiersText)
+        string modifiersText, bool locked)
     {
         m_TopLabel.text = topLabel;
         m_Base.text = baseText;
@@ -96,5 +110,6 @@ public class StatCellDetailContent : UIModel
         m_ModifiersLabel.text = modifiersLabel;
         m_ModifiersText.text = modifiersText;
         m_ModifiersContent.gameObject.SetActive(!string.IsNullOrEmpty(modifiersText));
+        m_LockToggle.isOn = locked;
     }
 }

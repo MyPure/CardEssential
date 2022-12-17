@@ -12,6 +12,7 @@ public class StatPack
     public List<StatModifierSource> ModifierSources => Stat.ModifierSources;
     
     public List<StatStatus> CurrentStatuses => Stat.CurrentStatuses;
+    public StatStatus CurrentStatus => Stat.AnyCurrentStatus(false);
 
     public string Description => Model.Description;
 

@@ -15,20 +15,20 @@ public class EssentialInjector : BaseUnityPlugin
 
     public StatInjector StatInjector { get; set; }
 
-    private Harmony s_Harmony;
+    private Harmony m_Harmony;
 
     private void Awake()
     {
         Instance = this;
         
-        s_Harmony = new Harmony("com.mypure.essential.injector");
+        m_Harmony = new Harmony("com.mypure.cardessential.injector");
 
         SetInjector();
     }
 
     private void SetInjector()
     {
-        s_Harmony.PatchAll(typeof(StatInjector));
+        m_Harmony.PatchAll(typeof(StatInjector));
         StatInjector = new StatInjector();
     }
 

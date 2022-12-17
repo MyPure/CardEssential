@@ -27,6 +27,12 @@ public static class FileUtils
         }
         
         var path = GetRealPath(relativeFilePath);
+        FileInfo fileInfo = new FileInfo(path);
+        
+        if (!Directory.Exists(fileInfo.Directory.FullName))
+        {
+            Directory.CreateDirectory(fileInfo.Directory.FullName);
+        }
 
         using StreamWriter sw = new StreamWriter(path);
         sw.Write(content);

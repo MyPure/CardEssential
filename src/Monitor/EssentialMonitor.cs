@@ -1,6 +1,6 @@
 ﻿using BepInEx;
-using CardEssential.Monitor.Config;
 using CardEssential.Monitor.Stat;
+using HarmonyLib;
 using UnityEngine;
 using UniverseLib.Input;
 
@@ -11,11 +11,16 @@ public class EssentialMonitor : BaseUnityPlugin
 {
     public static EssentialMonitor Instance { get; set; }
 
+    private Harmony m_Harmony;
+
     private void Awake()
     {
         Instance = this;
         StatMonitorManager.Init();
         LitJsonExtension.RegisterUnityObject();
+        
+        m_Harmony = new Harmony("com.mypure.cardessential.monitor");
+        m_Harmony.PatchAll(typeof(StatPatch));
     }
 
     private void Update()

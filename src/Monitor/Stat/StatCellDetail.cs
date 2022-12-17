@@ -21,24 +21,30 @@ public class StatCellDetail : UIModel
     private Action<string> m_RateApplyButtonClickedHandler;
     private Action m_ValueResetButtonClickedHandler;
     private Action m_RateResetButtonClickedHandler;
+    private Action<bool> m_ValueLockButtonClickedHandler;
+    private Action<bool> m_RateLockButtonClickedHandler;
 
-    public StatCellDetail(Action<string> valueApplyButtonClickedHandler, Action<string> rateApplyButtonClickedHandler, Action valueResetButtonClickedHandler, Action rateResetButtonClickedHandler)
+    public StatCellDetail(Action<string> valueApplyButtonClickedHandler, Action<string> rateApplyButtonClickedHandler,
+        Action valueResetButtonClickedHandler, Action rateResetButtonClickedHandler,
+        Action<bool> valueLockButtonClickedHandler, Action<bool> rateLockButtonClickedHandler)
     {
         m_ValueApplyButtonClickedHandler = valueApplyButtonClickedHandler;
         m_RateApplyButtonClickedHandler = rateApplyButtonClickedHandler;
         m_ValueResetButtonClickedHandler = valueResetButtonClickedHandler;
         m_RateResetButtonClickedHandler = rateResetButtonClickedHandler;
+        m_ValueLockButtonClickedHandler = valueLockButtonClickedHandler;
+        m_RateLockButtonClickedHandler = rateLockButtonClickedHandler;
     }
-    
+
     public override void ConstructUI(GameObject parent)
     {
         m_UiRoot = UIFactory.CreateUIObject("StatCellDetail", parent);
         UIFactory.SetLayoutGroup<VerticalLayoutGroup>(m_UiRoot, false, false, true, true, 5, 0, 0, 20, 0);
 
-        m_ValueContent = new StatCellDetailContent(m_ValueApplyButtonClickedHandler, m_ValueResetButtonClickedHandler);
+        m_ValueContent = new StatCellDetailContent(m_ValueApplyButtonClickedHandler, m_ValueResetButtonClickedHandler, m_ValueLockButtonClickedHandler);
         m_ValueContent.ConstructUI(m_UiRoot);
         
-        m_RateContent = new StatCellDetailContent(m_RateApplyButtonClickedHandler, m_RateResetButtonClickedHandler);
+        m_RateContent = new StatCellDetailContent(m_RateApplyButtonClickedHandler, m_RateResetButtonClickedHandler, m_RateLockButtonClickedHandler);
         m_RateContent.ConstructUI(m_UiRoot);
     }
     
@@ -66,7 +72,8 @@ public class StatCellDetail : UIModel
         var valueChange = statPack.Rate.CurrentRatePerTick >= 0
             ? TextUtils.RichText($"+{statPack.Rate.CurrentRatePerTick:0.##} / tick", ColorConst.VALUE_GROW)
             : TextUtils.RichText($"{statPack.Rate.CurrentRatePerTick:0.##} / tick", ColorConst.VALUE_DOWN);
-        var topLabel = $"{valueLabel} {valueText} {rateLabel} {valueChange}";
+        var valueLocked =  StatMonitorManager.IsLockValue(statPack) ? TextUtils.RichText("(locked)", ColorConst.NORMAL_LABEL) : "";
+        var topLabel = $"{valueLabel} {valueText} {rateLabel} {valueChange} {valueLocked}";
 
         var baseLabel = TextUtils.RichText("Base", ColorConst.SPECIAL_LABEL);
         var baseValue = TextUtils.RichText($"{statPack.Value.CurrentBaseValue:0.##}", ColorConst.STAT_VALUE);
@@ -106,14 +113,15 @@ public class StatCellDetail : UIModel
             modifiersContentText += "  ";
         }
         
-        m_ValueContent.Refresh(topLabel, baseText, notAtBase, atBaseText, modifiersLabel, modifiersContentText);
+        m_ValueContent.Refresh(topLabel, baseText, notAtBase, atBaseText, modifiersLabel, modifiersContentText, StatMonitorManager.IsLockValue(statPack));
     }
     
     private void RefreshRate(StatPack statPack)
     {
         var rateLabel = TextUtils.RichText("Rate", ColorConst.SPECIAL_LABEL_HEAD);
         var rateText = TextUtils.RichText($"{statPack.Rate.CurrentRatePerTick:0.##}", ColorConst.STAT_VALUE);
-        var topLabel = $"{rateLabel} {rateText}";
+        var rateLocked =  StatMonitorManager.LockedStatRate.ContainsKey(statPack.DefaultName) ? TextUtils.RichText("(locked)", ColorConst.NORMAL_LABEL) : "";
+        var topLabel = $"{rateLabel} {rateText} {rateLocked}";
 
         var baseLabel = TextUtils.RichText("Base", ColorConst.SPECIAL_LABEL);
         var baseRate = TextUtils.RichText($"{statPack.Rate.CurrentBaseRate:0.##}", ColorConst.STAT_VALUE);
@@ -152,7 +160,7 @@ public class StatCellDetail : UIModel
             modifiersContentText += "  ";
         }
         
-        m_RateContent.Refresh(topLabel, baseText, notAtBase, atBaseText, modifiersLabel, modifiersContentText);
+        m_RateContent.Refresh(topLabel, baseText, notAtBase, atBaseText, modifiersLabel, modifiersContentText, StatMonitorManager.IsLockRate(statPack));
     }
     
     private string GetModifierSourceName(StatModifierSource modifierSource)

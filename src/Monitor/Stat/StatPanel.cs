@@ -46,6 +46,16 @@ public class StatPanel : PanelBase
             m_StatTabModels[m_CurrentTab].Refresh();
         }
     }
+
+    public void RefreshFavorite()
+    {
+        var favoriteTab = m_StatTabModels.FirstOrDefault(tab => tab.Classification == "Favorite");
+        if (favoriteTab != null)
+        {
+            favoriteTab.SetData(m_StatPacks.Where(pack => StatMonitorManager.SavedData.favoriteStats.Contains(pack.DefaultName)).ToList());
+            favoriteTab.Refresh();
+        }
+    }
     
     public void SetData(List<StatPack> statPacks)
     {
@@ -53,14 +63,18 @@ public class StatPanel : PanelBase
         m_StatPacks = statPacks;
         foreach (var statTabModel in m_StatTabModels)
         {
-            List<StatPack> filteredData;
-            if (statTabModel.Classification != "Other")
+            List<StatPack> filteredData = null;
+            if (statTabModel.Classification != "Other" && statTabModel.Classification != "Favorite")
             {
                 filteredData = StatMonitorManager.StatFilter.Filter(statTabModel.Classification, statPacks);
                 filteredData.ForEach(pack =>
                 {
                     m_FilteredData.Add(pack.DefaultName);
                 });
+            }
+            else if (statTabModel.Classification == "Favorite")
+            {
+                filteredData = statPacks.Where(pack => StatMonitorManager.SavedData.favoriteStats.Contains(pack.DefaultName)).ToList();
             }
             else
             {
@@ -102,7 +116,7 @@ public class StatPanel : PanelBase
         UIFactory.SetLayoutGroup<HorizontalLayoutGroup>(buttonHeader, true, false, true, true, 2, 2, 2, 2, 2);
 
         int index = 0;
-        foreach (var classification in StatMonitorManager.StatFilter.AllClassifications.Concat(new[] { "Other" }))
+        foreach (var classification in StatMonitorManager.StatFilter.AllClassifications.Concat(new[] { "Favorite", "Other" }))
         {
             var tabButton = UIFactory.CreateButton(buttonHeader, classification, classification);
             UIFactory.SetLayoutElement(tabButton.GameObject, minWidth: 40, minHeight: 25);

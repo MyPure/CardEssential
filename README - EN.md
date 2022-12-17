@@ -26,6 +26,7 @@ https://github.com/sinai-dev/UniverseLib
 Put CardEssential.dll and UniverseLib.Mono.dll into the GameRoot\BepInEx\plugins. If you don't have this directory, you need to install BepInEx 5 first.
 
 - How to use
+- 
 After entering the game, press the keyboard shortcut Ctrl + F to open and close the page.
 
 You can click the button to the left of the value name to add the value you want to the "Favorite" column, or you can configure your own column in the CardEssential\Monitor\StatData.dat file.

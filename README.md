@@ -27,6 +27,7 @@ https://github.com/sinai-dev/UniverseLib
 - 安装方法
 
 把CardEssential.dll与UniverseLib.Mono.dll放入游戏根目录\BepInEx\plugins下。如果你没有这个目录，你需要先安装BepInEx 5。
+[Bepinex安装方法](https://docs.bepinex.dev/articles/user_guide/installation/index.html))
 
 - 使用方法
 

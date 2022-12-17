@@ -29,7 +29,7 @@ Put CardEssential.dll and UniverseLib.Mono.dll into the GameRoot\BepInEx\plugins
 
 After entering the game, press the keyboard shortcut Ctrl + F to open and close the page.
 
-You can click the button to the left of the value name to add the value you want to the "Favorite" column, or you can configure your own column in the CardEssential\Monitor\StatData.dat file.
+You can click the button to the left of the value name to add the value you want to the "Favorite" tab, or you can configure your own tab in the CardEssential\Monitor\StatData.dat file.
 
 If you have modified the configuration file, you can use the shortcut Ctrl + R to hot reload it in the game.
 

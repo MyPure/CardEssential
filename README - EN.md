@@ -25,7 +25,7 @@ https://github.com/sinai-dev/UniverseLib
 
 Put CardEssential.dll and UniverseLib.Mono.dll into the GameRoot\BepInEx\plugins. If you don't have this directory, you need to install BepInEx 5 first.
 
-[Bepinex Installation](https://docs.bepinex.dev/articles/user_guide/installation/index.html))
+[Bepinex Installation](https://docs.bepinex.dev/articles/user_guide/installation/index.html)
 
 - How to use
 
